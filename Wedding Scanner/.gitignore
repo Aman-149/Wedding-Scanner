@@ -1,0 +1,50 @@
+# Environment files
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.envrc
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+*.db
+
+# Node
+node_modules/
+
+# Compiled files
+*.so
+*.dll
+*.exe
+
+# Test & coverage
+.coverage
+htmlcov/
+*.cover
+*.py,cover
+
+# Misc
+*.swp
+*.swo
+.idea/
+*.bak
+*.tmp
