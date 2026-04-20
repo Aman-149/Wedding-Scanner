@@ -1,14 +1,37 @@
-const mongoose = require("mongoose");
+const { Pool } = require("pg");
 
-const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
+let pool;
 
-  if (!mongoUri) {
-    throw new Error("MONGODB_URI is not set in environment variables.");
+const getPool = () => {
+  if (!pool) {
+    throw new Error("Database pool has not been initialized. Call connectDB first.");
   }
-
-  await mongoose.connect(mongoUri);
-  console.log("MongoDB connected");
+  return pool;
 };
 
-module.exports = connectDB;
+const connectDB = async () => {
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error("POSTGRES_URL (or DATABASE_URL) is not set in environment variables.");
+  }
+
+  pool = new Pool({ connectionString });
+  await pool.query("SELECT 1");
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS guests (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      qr_token UUID NOT NULL UNIQUE,
+      checked_in BOOLEAN NOT NULL DEFAULT FALSE,
+      category TEXT NOT NULL DEFAULT 'General',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  console.log("PostgreSQL connected");
+};
+
+module.exports = { connectDB, getPool };

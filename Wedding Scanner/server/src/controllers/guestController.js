@@ -60,14 +60,14 @@ const uploadGuests = async (req, res, next) => {
       });
     }
 
-    const insertedGuests = await Guest.insertMany(guestsToInsert, { ordered: false });
+    const insertedGuests = await Guest.insertMany(guestsToInsert);
 
     return res.status(201).json({
       message: "Guest list uploaded successfully.",
       guests: insertedGuests,
     });
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === "23505") {
       return res.status(409).json({ message: "Duplicate token conflict. Please retry upload." });
     }
     if (error.message.includes("Unexpected token")) {
@@ -106,8 +106,7 @@ const checkInGuest = async (req, res, next) => {
       return res.status(409).json({ message: "Already checked in.", name: guest.name });
     }
 
-    guest.checkedIn = true;
-    await guest.save();
+    await Guest.markCheckedIn(guest.id);
 
     return res.json({ message: "Check-in successful.", name: guest.name });
   } catch (error) {
@@ -117,7 +116,7 @@ const checkInGuest = async (req, res, next) => {
 
 const getGuests = async (_req, res, next) => {
   try {
-    const guests = await Guest.find().sort({ createdAt: -1 });
+    const guests = await Guest.find();
     return res.json(guests);
   } catch (error) {
     return next(error);
